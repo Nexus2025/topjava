@@ -3,11 +3,11 @@ package ru.javawebinar.topjava.util;
 import ru.javawebinar.topjava.model.UserMeal;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class UserMealsUtil {
     public static void main(String[] args) {
@@ -29,7 +29,28 @@ public class UserMealsUtil {
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         // TODO return filtered list with excess. Implement by cycles
-        return null;
+        Map<LocalDate, Integer> uniqueDates = new HashMap<>();
+        List<UserMealWithExcess> mealWithExcesses = new ArrayList<>();
+
+        for (UserMeal userMeal : meals) {
+            if (!uniqueDates.containsKey(userMeal.getDateTime().toLocalDate())) {
+                uniqueDates.put(userMeal.getDateTime().toLocalDate(), userMeal.getCalories());
+            } else {
+                int caloriesFromUniqueDates = uniqueDates.get(userMeal.getDateTime().toLocalDate());
+                uniqueDates.put(userMeal.getDateTime().toLocalDate(), caloriesFromUniqueDates + userMeal.getCalories());
+            }
+        }
+
+        for (UserMeal userMeal : meals) {
+            LocalTime localTimeFromMeals = userMeal.getDateTime().toLocalTime();
+            if (TimeUtil.isBetweenHalfOpen(localTimeFromMeals, startTime, endTime)) {
+                boolean isExcess = uniqueDates.get(userMeal.getDateTime().toLocalDate()) > caloriesPerDay;
+                mealWithExcesses.add(new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(),
+                        userMeal.getCalories(), isExcess));
+            }
+        }
+
+        return mealWithExcesses;
     }
 
     public static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
