@@ -1,7 +1,7 @@
 package ru.javawebinar.topjava.web;
 
-import ru.javawebinar.topjava.dao.MealDAO;
-import ru.javawebinar.topjava.dao.MealDAOImpl;
+import ru.javawebinar.topjava.dao.MealRepository;
+import ru.javawebinar.topjava.dao.InMemoryMealRepository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -18,75 +18,44 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class MealServlet extends HttpServlet {
-    private final MealDAO mealDAO = new MealDAOImpl();
-    private final static String CREATE_OR_UPDATE = "create-update.jsp";
-    private final static String LIST_MEAL = "meals.jsp";
+    private MealRepository repository;
+
+    @Override
+    public void init() {
+        repository = new InMemoryMealRepository();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-
-        String forward = "";
         String action = request.getParameter("action");
-        if (action != null) {
-            if (action.equalsIgnoreCase("create")) {
-                forward = CREATE_OR_UPDATE;
-            } else if (action.equalsIgnoreCase("update")) {
-                try {
-                    Integer id = Integer.valueOf(request.getParameter("mealId"));
-                    request.setAttribute("meal", mealDAO.getMealById(id));
-                    forward = CREATE_OR_UPDATE;
-                } catch (NullPointerException | NumberFormatException e) { /* NOP */ }
-            } else if (action.equalsIgnoreCase("delete")) {
-                try {
-                    Integer id = Integer.valueOf(request.getParameter("mealId"));
-                    mealDAO.deleteMealById(id);
-                    response.sendRedirect("meals");
-                    return;
-                } catch (NullPointerException | NumberFormatException e) { /* NOP */ }
-            }
-        } else {
-            int caloriesPerDay = 2000;
-            List<MealTo> mealsTo = MealsUtil.filteredByStreams(
-                    mealDAO.getAllMeals(), LocalTime.of(0, 0), LocalTime.of(23, 59), caloriesPerDay);
-            request.setAttribute("mealsTo", mealsTo);
-            forward = LIST_MEAL;
-        }
 
-        request.getRequestDispatcher(forward).forward(request, response);
+        if (action == null) {
+            request.setAttribute("meals", MealsUtil.filteredByStreams(
+                    repository.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), 2000));
+            request.getRequestDispatcher("meals.jsp").forward(request, response);
+        } else if (action.equalsIgnoreCase("create")) {
+            request.getRequestDispatcher("mealForm.jsp").forward(request, response);
+        } else if (action.equalsIgnoreCase("update")) {
+            request.setAttribute("meal", repository.get(Integer.parseInt(request.getParameter("mealId"))));
+            request.getRequestDispatcher("mealForm.jsp").forward(request, response);
+        } else if (action.equalsIgnoreCase("delete")) {
+            repository.delete(Integer.parseInt(request.getParameter("mealId")));
+            response.sendRedirect("meals");
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        String id = request.getParameter("id");
 
-        String action = request.getParameter("action");
-        if (action != null) {
-            if (action.equalsIgnoreCase("create")) {
-                try {
-                    String dateTimeParam = request.getParameter("dateTime");
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-                    LocalDateTime dateTime = LocalDateTime.parse(dateTimeParam, formatter);
-                    String description = request.getParameter("description");
-                    int calories = Integer.parseInt(request.getParameter("calories"));
+        Meal meal = new Meal(id.isEmpty() ? null : Integer.parseInt(id),
+                LocalDateTime.parse(request.getParameter("dateTime")),
+                request.getParameter("description"),
+                Integer.parseInt(request.getParameter("calories")));
 
-                    Meal meal = new Meal(dateTime, description, calories);
-                    mealDAO.createMeal(meal);
-                } catch (NullPointerException | NumberFormatException | DateTimeParseException e) { /* NOP */ }
-            } else if (action.equalsIgnoreCase("update")) {
-                try {
-                    Integer id = Integer.valueOf(request.getParameter("mealId"));
-                    String dateTimeParam = request.getParameter("dateTime");
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-                    LocalDateTime dateTime = LocalDateTime.parse(dateTimeParam, formatter);
-                    String description = request.getParameter("description");
-                    int calories = Integer.parseInt(request.getParameter("calories"));
-                    Meal meal = new Meal(id, dateTime, description, calories);
-                    mealDAO.updateMeal(meal);
-                } catch (NullPointerException | NumberFormatException | DateTimeParseException e) { /* NOP */ }
-            }
-        }
-
+        repository.save(meal);
         response.sendRedirect("meals");
     }
 }

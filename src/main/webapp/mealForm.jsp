@@ -9,10 +9,10 @@
     <br>
     <c:set var="meal" value='${requestScope["meal"]}' />
     <form method="post">
-        <p>DateTime: <input type="datetime-local" name="dateTime" value="<c:out value="${not empty meal ?  meal.getDateTime(): ''}" />"></p>
-        <p>Description: <input name="description" value="<c:out value="${not empty meal ?  meal.getDescription(): ''}" />"></p>
-        <p>Calories: <input type="number" name="calories" value="<c:out value="${not empty meal ?  meal.getCalories(): ''}" />"></p>
-        <input type="hidden" name="action" value="create">
+        <input type="hidden" name="id" value="${meal.getId()}">
+        <p>DateTime: <input type="datetime-local" name="dateTime" value="${not empty meal ?  meal.getDateTime(): ''}"></p>
+        <p>Description: <input name="description" value="${not empty meal ?  meal.getDescription(): ''}"></p>
+        <p>Calories: <input type="number" name="calories" value="${not empty meal ?  meal.getCalories(): ''}"></p>
         <p><button type="submit">Save</button>
         <button type="button" onclick="location.href='meals';">Cancel</button></p>
     </form>

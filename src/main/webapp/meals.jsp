@@ -4,6 +4,14 @@
 <html>
 <head>
     <title>Meals</title>
+    <style>
+        .normal {
+            color: green;
+        }
+        .excess {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Meals</h1>
@@ -19,13 +27,15 @@
         </thead>
         <tbody>
             <c:forEach items="${meals}" var="meal">
-                <tr <c:out value="${meal.isExcess() ?  'style=\"color: red\"' : 'style=\"color: green\"'}" escapeXml="false"/>>
-                    <fmt:parseDate value="${meal.getDateTime()}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both" />
-                    <th><fmt:formatDate pattern="dd-MM-yyyy HH:mm" value="${parsedDateTime}"/></th>
-                    <th><c:out value="${meal.getDescription()}" /></th>
-                    <th><c:out value="${meal.getCalories()}" /></th>
-                    <td><a href="meals?action=update&mealId=<c:out value="${meal.getId()}"/>">Update</a></td>
-                    <td><a href="meals?action=delete&mealId=<c:out value="${meal.getId()}"/>">Delete</a></td>
+                <tr class="${meal.isExcess() ? 'excess' : 'normal'}">
+                    <th>
+                        <fmt:parseDate value="${meal.getDateTime()}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" />
+                        <fmt:formatDate value="${parsedDateTime}" pattern="dd-MM-yyyy HH:mm" />
+                    </th>
+                    <th>${meal.getDescription()}</th>
+                    <th>${meal.getCalories()}</th>
+                    <td><a href="meals?action=update&mealId=${meal.getId()}">Update</a></td>
+                    <td><a href="meals?action=delete&mealId=${meal.getId()}">Delete</a></td>
                 </tr>
             </c:forEach>
         </tbody>
