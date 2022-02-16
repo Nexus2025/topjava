@@ -49,6 +49,16 @@
             </tr>
         </c:forEach>
     </table>
+    <br>
+    <form action="meals">
+        <b>Select user:</b>
+        <select name="action">
+            <option value="changeUser1">1</option>
+            <option value="changeUser2">2</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Confirm">
+    </form>
 </section>
 </body>
 </html>

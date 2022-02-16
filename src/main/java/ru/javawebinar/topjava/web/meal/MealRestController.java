@@ -24,27 +24,27 @@ public class MealRestController {
     public MealTo create(Meal meal) {
         log.info("create {}", meal);
         checkNew(meal);
-        return service.create(meal, SecurityUtil.authUserId());
+        return service.create(meal, SecurityUtil.getAuthUserId());
     }
 
     public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
         assureIdConsistent(meal, id);
-        service.update(meal, SecurityUtil.authUserId());
+        service.update(meal, SecurityUtil.getAuthUserId());
     }
 
     public void delete(int id) {
         log.info("delete {}", id);
-        service.delete(id, SecurityUtil.authUserId());
+        service.delete(id, SecurityUtil.getAuthUserId());
     }
 
     public MealTo get(int id) {
         log.info("get {}", id);
-        return service.get(id, SecurityUtil.authUserId());
+        return service.get(id, SecurityUtil.getAuthUserId());
     }
 
     public List<MealTo> getAll() {
         log.info("getAll");
-        return service.getAll(SecurityUtil.authUserId());
+        return service.getAll(SecurityUtil.getAuthUserId());
     }
 }

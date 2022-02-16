@@ -39,7 +39,7 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
 
-        Meal meal = new Meal(SecurityUtil.authUserId(), id.isEmpty() ? null : Integer.valueOf(id),
+        Meal meal = new Meal(SecurityUtil.getAuthUserId(), id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
@@ -58,6 +58,14 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         switch (action == null ? "all" : action) {
+            case "changeUser1":
+                SecurityUtil.setAuthUserId(1);
+                response.sendRedirect("meals");
+                break;
+            case "changeUser2":
+                SecurityUtil.setAuthUserId(2);
+                response.sendRedirect("meals");
+                break;
             case "delete":
                 int id = getId(request);
                 log.info("Delete {}", id);
