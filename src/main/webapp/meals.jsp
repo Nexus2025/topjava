@@ -23,6 +23,20 @@
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
+    <form action="meals">
+        <input type="hidden" name="action" value="filter">
+        <b>From date(including)</b>
+        <input type="date" name="startDate">
+        <b>To date(including)</b>
+        <input type="date" name="endDate">
+        <br><br>
+        <b>From time(including)</b>
+        <input type="time" name="startTime">
+        <b>To time(excluding)</b>
+        <input type="time" name="endTime">
+        <br><br>
+        <input type="submit" value="Confirm">
+    </form>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>

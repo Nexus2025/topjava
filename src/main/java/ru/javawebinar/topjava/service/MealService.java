@@ -1,17 +1,23 @@
 package ru.javawebinar.topjava.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
 public class MealService {
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private final MealRepository repository;
 
@@ -41,5 +47,12 @@ public class MealService {
 
     public List<MealTo> getAll(int userId) {
         return MealsUtil.getTos(repository.getAll(userId), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+    }
+
+    public List<MealTo> getFiltered(LocalDateTime start, LocalDateTime end, int userId) {
+        log.info("getFiltered startTime: {} | endTime: {}", start, end);
+        return getAll(userId).stream()
+                .filter(mealTo -> DateTimeUtil.isBetweenHalfOpen(mealTo.getDateTime(), start, end))
+                .collect(Collectors.toList());
     }
 }

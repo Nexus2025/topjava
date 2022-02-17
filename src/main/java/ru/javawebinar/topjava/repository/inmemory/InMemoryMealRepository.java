@@ -59,9 +59,5 @@ public class InMemoryMealRepository implements MealRepository {
         return repository.values().stream().filter(meal -> meal.getUserId() == userId).
                 sorted((meal1, meal2) -> meal2.getDate().compareTo(meal1.getDate())).collect(Collectors.toList());
     }
-
-    public void printRepo() {
-        repository.values().forEach(System.out::println);
-    }
 }
 
